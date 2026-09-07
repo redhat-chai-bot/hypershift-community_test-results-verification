@@ -50,7 +50,7 @@ The implementation spans two PRs:
 |------|-----------|
 | Sharding implementation PR | [openshift/hypershift#8705](https://github.com/openshift/hypershift/pull/8705) — "Add etcd sharding by resource kind support" |
 | Backup/restore PR | [openshift/hypershift#9146](https://github.com/openshift/hypershift/pull/9146) — "Add multi-shard etcd backup and restore support" |
-| Feature Jira | [OCPSTRAT-3150](https://issues.redhat.com/browse/OCPSTRAT-3150) — "etcd Sharding for HyperShift Hosted Clusters" |
+| Feature Jira | OCPSTRAT-3150 — "etcd Sharding for HyperShift Hosted Clusters" |
 | API: shard spec (managed) | `api/hypershift/v1beta1/hostedcluster_types.go` — `ManagedEtcdSpec.Shards`, `ManagedEtcdShardSpec`, `EtcdShardResource` |
 | API: shard spec (unmanaged) | `api/hypershift/v1beta1/hostedcluster_types.go` — `UnmanagedEtcdSpec.Shards`, `UnmanagedEtcdShardSpec` |
 | API: backup status | `api/hypershift/v1beta1/etcdbackup_types.go` — `HCPEtcdBackupStatus.ShardSnapshots`, `HCPEtcdShardSnapshot` |
@@ -756,7 +756,7 @@ For each test case, the tester must capture:
 | This test plan | `plans/ocpstrat-3150.md` |
 | Test execution log | Timestamped record of all commands executed and their outputs |
 | Pass/fail summary | Per-test-case verdict with evidence references |
-| Defect reports | Jira issues filed for any failures, linked to [OCPSTRAT-3150](https://issues.redhat.com/browse/OCPSTRAT-3150) |
+| Defect reports | Jira issues filed for any failures, linked to OCPSTRAT-3150 |
 
 ---
 
@@ -836,4 +836,4 @@ Testing is considered complete when:
 2. All pass criteria are met, or defects have been filed for any failures.
 3. Test execution logs and evidence have been archived.
 4. Results have been reported to the feature team.
-5. Any filed defects have been linked to the feature Jira ([OCPSTRAT-3150](https://issues.redhat.com/browse/OCPSTRAT-3150)).
+5. Any filed defects have been linked to the feature Jira (OCPSTRAT-3150).
