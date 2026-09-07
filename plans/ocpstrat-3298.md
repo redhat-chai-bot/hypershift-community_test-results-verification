@@ -457,7 +457,7 @@ For each test case, the tester must capture:
 
 | Deliverable | Description |
 |-------------|-------------|
-| This test plan | `plans/ocpstrat-9238.md` |
+| This test plan | `plans/ocpstrat-3298.md` |
 | Test execution log | Timestamped record of all commands executed and their outputs |
 | Pass/fail summary | Per-test-case verdict with evidence references |
 | Defect reports | Jira issues filed for any failures, linked to OCPSTRAT-3298 |
