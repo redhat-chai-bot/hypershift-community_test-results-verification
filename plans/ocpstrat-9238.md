@@ -2,7 +2,7 @@
 
 ## 1. Test Plan Identifier
 
-**ID:** TP-OCPSTRAT-9238-001
+**ID:** TP-OCPSTRAT-3298-001
 **Version:** 1.0
 **Date:** 2026-09-05
 **IEEE 829 Compliance:** This document follows the IEEE 829-2008 Standard for Software and System Test Documentation.
@@ -21,9 +21,16 @@ This test plan defines the manual verification strategy for the **Predictable No
 2. Verify that spec-driven configuration changes (e.g., adding a user MachineConfig) **do** trigger a NodePool rollout and update the rollout hash annotation.
 3. Verify that after an operator upgrade (simulated by removing the rollout config annotation), the controller re-seeds the annotation on the next reconciliation **without** triggering a rollout.
 
-### 2.3 Jira Issue Availability
+### 2.3 Acceptance Criteria Mapping
 
-> **Note:** Jira issue [OCPSTRAT-9238](https://issues.redhat.com/browse/OCPSTRAT-9238) could not be retrieved at the time of this plan's creation (the Jira API returned an access error, indicating the issue may not exist, may have a restricted security level, or the service account lacks project access). Acceptance-criteria mapping from OCPSTRAT-9238 is therefore **unavailable** and has not been fabricated. The implementation PR itself references [OCPSTRAT-3298](https://issues.redhat.com/browse/OCPSTRAT-3298) ("Predictable NodePool rollout control") as the underlying feature issue. All test scenarios in this plan are derived exclusively from the PR description, code diff, and the e2e test file.
+This test plan maps to the verified acceptance criteria of [OCPSTRAT-3298](https://issues.redhat.com/browse/OCPSTRAT-3298) ("Predictable NodePool Rollout Control for Hosted Control Planes"):
+
+| OCPSTRAT-3298 Acceptance Criterion | Test Case |
+|-------------------------------------|-----------|
+| AC #2 — Only a change in the rollout hash MUST trigger a Replace rollout | TC-002 (Section 6.4) |
+| AC #3 — A change in only the payload hash MUST NOT trigger a Replace rollout | TC-001 (Section 6.3) |
+| AC #4 — Rollout hash tracked via a separate `nodePoolCurrentRolloutConfig` annotation | Verified across TC-001, TC-002, and TC-003 |
+| AC #5 — On first reconcile after upgrade, the controller MUST seed the new annotation WITHOUT triggering a rollout | TC-003 (Section 6.5) |
 
 ---
 
@@ -41,8 +48,7 @@ This test plan defines the manual verification strategy for the **Predictable No
 | Controller: main reconciler | `hypershift-operator/controllers/nodepool/nodepool_controller.go` — annotation seeding on first reconcile |
 | Karpenter integration | `karpenter-operator/controllers/karpenterignition/karpenterignition_controller.go` — parallel rollout config annotation tracking |
 | Unit tests | `capi_test.go` (+670), `conditions_test.go` (+138), `config_test.go` (+516), `nodepool_controller_test.go` (+12) |
-| Feature Jira | [OCPSTRAT-3298](https://issues.redhat.com/browse/OCPSTRAT-3298) (referenced by the PR) |
-| Test plan Jira | [OCPSTRAT-9238](https://issues.redhat.com/browse/OCPSTRAT-9238) (inaccessible; see Section 2.3) |
+| Feature Jira | [OCPSTRAT-3298](https://issues.redhat.com/browse/OCPSTRAT-3298) — "Predictable NodePool Rollout Control for Hosted Control Planes" |
 
 ### 3.1 Key Annotations
 
@@ -501,7 +507,7 @@ For each test case, the tester must capture:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| OCPSTRAT-9238 acceptance criteria unavailable | Cannot map test cases to formal acceptance criteria | Tests derived from PR implementation and e2e tests; re-map when Jira access is restored |
+| Acceptance criteria change before merge | Test-case-to-AC mapping becomes stale | Re-verify AC mapping against OCPSTRAT-3298 if requirements are revised |
 | PR #8698 not yet merged | Feature may change before merge | Re-review test plan if PR is substantially revised |
 | NodePool provisioning timeouts | Test execution delayed | Use pre-existing NodePools for TC-001; allow 20+ minute timeouts for TC-002/TC-003 |
 | KubeVirt platform exclusion | Reduced coverage | Track CNV-38196; add KubeVirt coverage when resolved |
@@ -524,4 +530,4 @@ Testing is considered complete when:
 2. All pass criteria are met, or defects have been filed for any failures.
 3. Test execution logs and evidence have been archived.
 4. Results have been reported to the feature team.
-5. Any filed defects have been linked to the feature Jira (OCPSTRAT-3298) and this test plan Jira (OCPSTRAT-9238, when accessible).
+5. Any filed defects have been linked to the feature Jira ([OCPSTRAT-3298](https://issues.redhat.com/browse/OCPSTRAT-3298)).
