@@ -27,10 +27,10 @@ This test plan maps to the verified acceptance criteria of [OCPSTRAT-3298](https
 
 | OCPSTRAT-3298 Acceptance Criterion | Test Case |
 |-------------------------------------|-----------|
-| AC #2 — Only a change in the rollout hash MUST trigger a Replace rollout | TC-002 (Section 6.4) |
-| AC #3 — A change in only the payload hash MUST NOT trigger a Replace rollout | TC-001 (Section 6.3) |
+| AC #2 — Only a change in the rollout hash MUST trigger a Replace rollout | TC-002 (Section 6.5) |
+| AC #3 — A change in only the payload hash MUST NOT trigger a Replace rollout | TC-001 (Section 6.4) |
 | AC #4 — Rollout hash tracked via a separate `nodePoolCurrentRolloutConfig` annotation | Verified across TC-001, TC-002, and TC-003 |
-| AC #5 — On first reconcile after upgrade, the controller MUST seed the new annotation WITHOUT triggering a rollout | TC-003 (Section 6.5) |
+| AC #5 — On first reconcile after upgrade, the controller MUST seed the new annotation WITHOUT triggering a rollout | TC-003 (Section 6.6) |
 
 ### 2.4 Automation-First Principle
 
