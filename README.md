@@ -8,7 +8,7 @@ individual personal GitHub repositories.
 
 ```
 .
-├── plans/                  # Test plans (IEEE 829-style Markdown)
+├── plans/                  # Test plans (Markdown; IEEE 829 or lightweight)
 │   ├── <jira-key>.md       # Plan linked to a Jira issue (e.g. ocpstrat-3298.md)
 │   └── <slug>.md           # Plan without a Jira issue (e.g. csi-snapshot-validation.md)
 ├── reports/                # Verification reports (HTML bundle or Markdown)
@@ -33,7 +33,16 @@ individual personal GitHub repositories.
 
 ### Plans (`plans/`)
 
-Each test plan is a single Markdown file following the IEEE 829-2008 standard.
+Each test plan is a single Markdown file with YAML front-matter metadata.
+Plans support two profiles:
+
+- **IEEE 829** — set `ieee_829: true` in front-matter to follow the full
+  IEEE 829-2008 body structure with numbered sections. Preferred for
+  comprehensive, multi-scenario plans.
+- **Lightweight** — when `ieee_829` is absent or `false`, a simpler
+  free-form Markdown structure covering scope, test cases, and acceptance
+  criteria is valid.
+
 A single plan can reference multiple Jira issues and PRs to support backport
 workflows. See [docs/format.md](docs/format.md#naming-conventions) for naming
 conventions and the metadata model.

@@ -6,9 +6,16 @@ For full details see [CONTRIBUTING.md](CONTRIBUTING.md),
 
 ## Non-Negotiable Rules
 
-1. **Plans (`plans/`)** — IEEE 829-style Markdown only, one file per feature.
-   Each file must have YAML front-matter with required fields (`id`, `version`,
-   `date`, `title`, `jira_issues`, `pull_requests`, `status`).
+1. **Plans (`plans/`)** — Markdown with YAML front-matter, one file per feature.
+   Two profiles are supported:
+   - **IEEE 829** (`ieee_829: true` in front-matter) — full IEEE 829-2008
+     body structure with numbered sections. Preferred for comprehensive plans.
+   - **Lightweight** (default when `ieee_829` is absent or `false`) — free-form
+     Markdown covering scope, test cases, and acceptance criteria.
+   Required metadata (discoverability core): `id`, `title`, `date`, `status`.
+   Recommended when applicable: `version`, `jira_issues`, `pull_requests`.
+   Legacy/incomplete artifacts may omit unavailable metadata — document gaps,
+   do not fabricate facts.
 
 2. **Reports (`reports/`)** — HTML bundles are the preferred and authoritative
    format. A bundle directory must contain `metadata.yaml` and `index.html`;

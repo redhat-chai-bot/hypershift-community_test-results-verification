@@ -22,12 +22,21 @@ lowercase Jira key (e.g. `plans/ocpstrat-3298.md`) or descriptive slug
 
 Start from the [plan template](docs/format.md#plan-template) or copy an
 existing plan from `plans/`. Every plan **must** include the YAML front-matter
-metadata block — see [docs/format.md](docs/format.md#metadata-block) for
-required and optional fields.
+metadata block with the required core fields (`id`, `title`, `date`,
+`status`). Relationship fields (`version`, `jira_issues`, `pull_requests`)
+are recommended when applicable — see
+[docs/format.md](docs/format.md#metadata-block) for the full field reference.
 
-The body follows the IEEE 829-2008 structure. See
-[docs/format.md](docs/format.md#plan-body-structure) for the recommended
-sections and template.
+**Choose a profile for the plan body:**
+
+- **IEEE 829** (`ieee_829: true`) — follow the IEEE 829-2008 body structure
+  with numbered sections. See
+  [docs/format.md](docs/format.md#plan-body-structure) for the recommended
+  sections and template.
+- **Lightweight** (default) — use free-form Markdown covering scope, test
+  cases, and acceptance criteria. There is no required section numbering, but
+  the plan should clearly describe what is tested, how, and what constitutes
+  a pass.
 
 ### 3. Open a pull request
 

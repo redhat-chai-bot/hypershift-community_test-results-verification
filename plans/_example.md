@@ -29,8 +29,11 @@ author: HyperShift Team
 
 # Test Plan: Example Feature
 
-> **This is a sanitized example.** All identifiers, cluster names, and data
-> are fictional. Use this file as a reference when writing your own plans.
+> **This is a sanitized example using the IEEE 829 profile** (`ieee_829: true`).
+> All identifiers, cluster names, and data are fictional. Use this file as a
+> reference when writing IEEE 829-style plans. For lightweight plans, see the
+> [lightweight template](../docs/format.md#lightweight-template-default) in
+> the format specification.
 
 ## 1. Test Plan Identifier
 

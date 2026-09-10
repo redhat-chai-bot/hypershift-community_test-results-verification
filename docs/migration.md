@@ -26,10 +26,14 @@ into this repository, whether manually or with LLM-assisted tooling.
   `draft` in their front-matter and add a brief note (e.g.
   "Missing: test-environment details — to be supplied by author") so
   follow-up work is visible.
-- **New and materially updated plans must use the current format.**
-  The IEEE 829 structure defined in [format.md](format.md) is required
-  for any plan written from scratch or substantially rewritten. Minor
-  metadata-only updates to a migrated plan do not trigger a full rewrite.
+- **New and materially updated plans must choose a profile.**
+  Any plan written from scratch or substantially rewritten must include
+  the required core metadata (`id`, `title`, `date`, `status`) and select
+  a body profile — either IEEE 829 (`ieee_829: true`) for the full
+  IEEE 829-2008 section structure, or the lightweight Markdown profile
+  (default). See [format.md](format.md#plan-body-structure) for details.
+  Minor metadata-only updates to a migrated plan do not trigger a full
+  rewrite.
 - **HTML bundles are preserved as-is.** Do not convert HTML report bundles
   to Markdown during migration (see [What NOT to Do](#what-not-to-do)).
   They are relocated intact and given a `metadata.yaml` sidecar.
@@ -50,13 +54,19 @@ For each artifact, note:
 
 **For plans (Markdown):**
 
-1. **Add YAML front-matter** — see [format.md](format.md#metadata-block) for
-   required fields.
+1. **Add YAML front-matter** — include the required core fields (`id`,
+   `title`, `date`, `status`). Add `version`, `jira_issues`, and
+   `pull_requests` when the information is available — see
+   [format.md](format.md#metadata-block).
 2. **Rename the file** — use the naming convention
    (`<jira-key>.md` or `<slug>.md`).
-3. **Restructure to IEEE 829** — if the plan does not already follow the IEEE
-   829-2008 structure, reorganize it into the standard sections. At minimum,
-   include: identifier, objectives, test items, and test cases.
+3. **Choose a body profile:**
+   - **IEEE 829** (`ieee_829: true`) — if the plan does not already follow
+     the IEEE 829-2008 structure, reorganize it into the standard sections.
+     At minimum, include: identifier, objectives, test items, and test cases.
+   - **Lightweight** (default) — ensure the plan clearly covers scope, test
+     cases, and acceptance criteria. No restructuring into numbered IEEE
+     sections is required.
 4. **Sanitize content** — remove any secrets, customer data, private links,
    or real cluster identifiers. Replace with placeholders.
 

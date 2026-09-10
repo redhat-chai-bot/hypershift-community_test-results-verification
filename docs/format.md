@@ -79,14 +79,37 @@ do not require the full HTML bundle structure.
 Every plan file **must** begin with a YAML front-matter block. This block
 enables automation to discover, index, and link plans.
 
-### Required Fields
+Fields are divided into three tiers:
+
+- **Required (discoverability core)** — must be present in every indexed plan.
+- **Recommended** — include when applicable; omit rather than use placeholders.
+- **Optional** — useful for discovery and tooling but not required.
+
+> **Legacy/incomplete artifacts:** Migrated plans that lack certain metadata
+> are preserved as-is. Document gaps with a note (e.g. "Missing: Jira issue —
+> pre-dates Jira tracking") rather than fabricating facts.
+
+### Required Fields (Discoverability Core)
+
+Every new or materially updated plan must include these four fields:
 
 ```yaml
 ---
 id: TP-OCPSTRAT-3298-001        # Unique plan identifier
-version: "1.0"                   # Plan version (semver-style)
 date: 2026-09-07                 # Last-updated date (ISO 8601)
 title: "Predictable NodePool Rollout Control"
+status: draft                    # "draft", "active", "superseded", or "archived"
+---
+```
+
+### Recommended Fields
+
+Include these when the information is available. Omit the field entirely
+rather than using empty lists or placeholders:
+
+```yaml
+---
+version: "1.0"                   # Plan version (semver-style)
 jira_issues:                     # Primary + backport Jira issues
   - key: OCPSTRAT-3298
     role: primary                # "primary" or "backport"
@@ -96,7 +119,6 @@ pull_requests:                   # Associated PRs
     number: 8698
     url: https://github.com/openshift/hypershift/pull/8698
     role: implementation         # "implementation", "backport", or "test"
-status: draft                    # "draft", "active", "superseded", or "archived"
 ---
 ```
 
@@ -109,33 +131,33 @@ tags:                            # Freeform tags for discovery
   - nodepool
   - rollout
   - machine-config
-ieee_829: true                   # Indicates IEEE 829-2008 structure
+ieee_829: true                   # Selects the IEEE 829-2008 body profile
 author: ""                       # Plan author (name or GitHub handle)
 ---
 ```
 
 ### Field Reference
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier. Convention: `TP-<JIRA-KEY>-<seq>` or `TP-<SLUG>-<seq>`. |
-| `version` | string | yes | Plan revision. Increment on substantive changes. |
-| `date` | date | yes | Last-updated date in ISO 8601 format. |
-| `title` | string | yes | Human-readable plan title. |
-| `jira_issues` | list | yes | List of associated Jira issues. Required; use an empty list `[]` when there is no Jira issue. |
-| `jira_issues[].key` | string | yes | Jira issue key (e.g. `OCPSTRAT-3298`). |
-| `jira_issues[].role` | string | yes | `primary` or `backport`. Exactly one issue should be `primary`. |
-| `jira_issues[].url` | string | yes | Full URL to the Jira issue. |
-| `pull_requests` | list | yes | List of associated PRs. Required; use an empty list `[]` when PRs are not yet opened. |
-| `pull_requests[].repo` | string | yes | GitHub repository in `org/repo` format. |
-| `pull_requests[].number` | integer | yes | PR number. |
-| `pull_requests[].url` | string | yes | Full URL to the PR. |
-| `pull_requests[].role` | string | yes | `implementation`, `backport`, or `test`. |
-| `status` | string | yes | Plan lifecycle status (see below). |
-| `superseded_by` | string | no | Filename stem of the replacement plan. |
-| `tags` | list | no | Freeform tags for search and filtering. |
-| `ieee_829` | boolean | no | `true` if the plan follows IEEE 829-2008 structure. |
-| `author` | string | no | Plan author identifier. |
+| Field | Type | Tier | Description |
+|-------|------|------|-------------|
+| `id` | string | **required** | Unique identifier. Convention: `TP-<JIRA-KEY>-<seq>` or `TP-<SLUG>-<seq>`. |
+| `date` | date | **required** | Last-updated date in ISO 8601 format. |
+| `title` | string | **required** | Human-readable plan title. |
+| `status` | string | **required** | Plan lifecycle status (see below). |
+| `version` | string | recommended | Plan revision. Increment on substantive changes. |
+| `jira_issues` | list | recommended | List of associated Jira issues. Include when the plan tracks Jira work. |
+| `jira_issues[].key` | string | (child) | Jira issue key (e.g. `OCPSTRAT-3298`). |
+| `jira_issues[].role` | string | (child) | `primary` or `backport`. Exactly one issue should be `primary`. |
+| `jira_issues[].url` | string | (child) | Full URL to the Jira issue. |
+| `pull_requests` | list | recommended | List of associated PRs. Include when PRs exist. |
+| `pull_requests[].repo` | string | (child) | GitHub repository in `org/repo` format. |
+| `pull_requests[].number` | integer | (child) | PR number. |
+| `pull_requests[].url` | string | (child) | Full URL to the PR. |
+| `pull_requests[].role` | string | (child) | `implementation`, `backport`, or `test`. |
+| `superseded_by` | string | optional | Filename stem of the replacement plan. |
+| `tags` | list | optional | Freeform tags for search and filtering. |
+| `ieee_829` | boolean | optional | `true` selects the IEEE 829-2008 body profile. |
+| `author` | string | optional | Plan author identifier. |
 
 ### Status Lifecycle
 
@@ -206,11 +228,11 @@ List all PRs in the `pull_requests` field.
 
 ### Plans Without a Jira Issue
 
-If there is no Jira issue, leave `jira_issues` as an empty list and name
-the file with a descriptive slug:
+If there is no Jira issue, omit the `jira_issues` field (or leave it as an
+empty list for backward compatibility) and name the file with a descriptive
+slug:
 
 ```yaml
-jira_issues: []
 pull_requests:
   - repo: openshift/hypershift
     number: 9100
@@ -220,8 +242,13 @@ pull_requests:
 
 ## Plan Body Structure
 
-Plans should follow the IEEE 829-2008 standard structure. The recommended
-sections are:
+The body structure depends on the plan profile selected via the `ieee_829`
+front-matter field.
+
+### IEEE 829 Profile (`ieee_829: true`)
+
+When `ieee_829: true`, the plan should follow the IEEE 829-2008 standard
+structure. The recommended sections are:
 
 1. **Test Plan Identifier** — ID, version, date, IEEE 829 reference
 2. **Introduction and Objectives** — purpose, objectives, acceptance criteria
@@ -235,11 +262,29 @@ sections are:
 7. **Approvals** — sign-off section
 
 This structure is a guideline. Adapt sections as needed for the feature under
-test — not every plan needs every section.
+test — not every IEEE 829 plan needs every section.
+
+### Lightweight Profile (default)
+
+When `ieee_829` is absent or `false`, the plan uses a simpler free-form
+Markdown structure. At a minimum it should cover:
+
+- **Scope** — what feature or behavior is being tested and why.
+- **Test cases** — what will be verified, with steps or references.
+- **Acceptance criteria** — what constitutes a pass.
+
+There is no required section numbering or IEEE heading convention. Authors
+may organize content in whatever way best communicates the test strategy.
 
 ## Plan Template
 
-Use this template to start a new test plan:
+Choose a template based on the plan profile you want to use. See
+[Plan Body Structure](#plan-body-structure) for details on each profile.
+
+### IEEE 829 Template (`ieee_829: true`)
+
+Use this template for plans that follow the IEEE 829-2008 standard.
+See also [`plans/_example.md`](../plans/_example.md) for a complete example.
 
 ````markdown
 ---
@@ -346,6 +391,46 @@ Describe the feature under test and the purpose of this plan.
 |------|------|------|
 | Author | | |
 | Reviewer | | |
+````
+
+### Lightweight Template (default)
+
+Use this template when the full IEEE 829 structure is not needed:
+
+````markdown
+---
+id: TP-<SLUG>-001
+date: YYYY-MM-DD
+title: "<Feature Name>"
+status: draft
+---
+
+# Test Plan: <Feature Name>
+
+## Scope
+
+Describe the feature under test, why it needs verification, and any
+relevant context.
+
+## Test Cases
+
+### TC-001: <Test Case Title>
+
+**Steps:**
+1. Step 1
+2. Step 2
+
+**Expected result:** Describe the expected outcome.
+
+### TC-002: <Test Case Title>
+
+...
+
+## Acceptance Criteria
+
+| Criterion | Verified by |
+|-----------|-------------|
+| AC #1 — description | TC-001 |
 ````
 
 ## Report Formats
@@ -509,12 +594,17 @@ in this repository.
 Automation **must**:
 
 1. Generate a valid Markdown file with the required YAML front-matter
-   metadata block.
+   metadata block (at minimum the discoverability core: `id`, `title`,
+   `date`, `status`). Include `version`, `jira_issues`, and
+   `pull_requests` when the information is available.
 2. Use the correct filename convention (`plans/<jira-key>.md` or
    `plans/<slug>.md`).
-3. Follow the IEEE 829-2008 body structure.
+3. Choose a plan profile:
+   - If `ieee_829: true` is set, follow the IEEE 829-2008 body structure.
+   - Otherwise, use a lightweight Markdown body covering scope, test
+     cases, and acceptance criteria.
 4. Set `status: draft` for newly generated plans.
-5. Include all known Jira issues and PRs in the metadata.
+5. Include all known Jira issues and PRs in the metadata when available.
 6. Open a PR against `main` with title format
    `<JIRA-KEY>: Add test plan for <feature>`.
 
@@ -522,10 +612,11 @@ Automation **must not**:
 
 - Commit directly to `main` — always use a PR.
 - Include secrets, credentials, customer data, or private links.
-- Overwrite an existing plan without incrementing the `version` field and
-  updating the `date`.
+- Overwrite an existing plan without incrementing the `version` field (if
+  present) and updating the `date`.
 - Create duplicate plan files for backport Jira issues — instead, update
   the existing plan's `jira_issues` list.
+- Fabricate metadata (Jira keys, PR numbers) that does not exist.
 
 ### Updating a Plan
 
@@ -559,8 +650,9 @@ template defined above and place the file at
 Automation should validate before committing:
 
 - YAML front-matter is parseable.
-- Required metadata fields are present.
-- All URLs are well-formed.
+- Required core metadata fields (`id`, `title`, `date`, `status`) are present.
+- All URLs in metadata are well-formed.
+- If `ieee_829: true`, the body contains the expected IEEE 829 sections.
 - Filename matches the primary Jira key or slug.
 - No secrets or private content patterns detected.
 
