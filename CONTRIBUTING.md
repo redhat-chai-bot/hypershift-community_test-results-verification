@@ -148,20 +148,6 @@ for the full list of content prohibitions.
 - Prefer tables for structured data (acceptance criteria mappings, test
   matrices).
 
-## CI Checks
-
-Pull requests are validated by a GitHub Actions workflow that checks:
-
-- YAML front-matter presence and required metadata fields in plans
-- IEEE 829 section structure
-- Report `metadata.yaml` consistency (format field, matching `index.html`)
-- Filename conventions and internal link integrity
-- Credential / secret pattern scanning
-- Spelling (via codespell)
-
-Fix any failures before requesting review. See
-[AGENTS.md](AGENTS.md) for a summary of non-negotiable rules.
-
 ## Questions
 
 If anything is unclear, open an issue on this repository or ask in the

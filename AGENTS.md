@@ -26,10 +26,3 @@ For full details see [CONTRIBUTING.md](CONTRIBUTING.md),
 
 5. **Preserve existing scope** — do not convert HTML bundles to Markdown
    during migration. Validate the complete diff before pushing.
-
-## CI Validation
-
-Pull requests are checked by `.github/workflows/validate.yml` which runs
-codespell, YAML front-matter validation, plan-structure checks, report
-metadata consistency, and a credential-pattern scan. Fix any failures
-before requesting review.
