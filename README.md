@@ -11,9 +11,17 @@ individual personal GitHub repositories.
 ├── plans/                  # Test plans (IEEE 829-style Markdown)
 │   ├── <jira-key>.md       # Plan linked to a Jira issue (e.g. ocpstrat-3298.md)
 │   └── <slug>.md           # Plan without a Jira issue (e.g. csi-snapshot-validation.md)
-├── reports/                # Pre-merge verification reports
+├── reports/                # Verification reports (HTML bundle or Markdown)
 │   └── <jira-key>/         # Reports grouped by Jira issue
-│       └── <pr-number>.md  # One report per PR (e.g. 8698.md)
+│       ├── index.html      # HTML bundle entry-point (preferred format)
+│       ├── scenario-N.html # Per-scenario detail pages
+│       ├── appendices.html # Supplementary evidence
+│       ├── automated-tests.html  # CI / automated-test results
+│       ├── assets/         # Screenshots, diagrams
+│       ├── scripts/        # Helper scripts used in testing
+│       ├── derived/        # Optional IEEE 829 Markdown derived from HTML
+│       │   └── report.md
+│       └── <pr-number>.md  # OR: lightweight Markdown report per PR
 ├── docs/                   # Repository documentation
 │   ├── format.md           # Metadata model, format specification, relationships
 │   └── migration.md        # Migration guide and inventory
@@ -30,9 +38,22 @@ conventions and the metadata model.
 
 ### Reports (`reports/`)
 
-Pre-merge verification reports capture the results of executing a test plan
-against a specific PR. Reports are grouped into subdirectories named by Jira
-issue key, with each report file named by the PR number it verifies.
+Verification reports capture the results of executing a test plan against a
+specific PR. Reports are grouped into subdirectories named by Jira issue key.
+
+Reports support **two formats**:
+
+- **HTML bundle (preferred)** — a self-contained directory with `index.html`,
+  per-scenario pages (`scenario-N.html`), appendices, automated-test results,
+  images, and helper scripts. This is the existing format used by OCPBUGS and
+  CNTRLPLANE verification reports.
+- **Markdown** — a lightweight single-file report (`<pr-number>.md`) following
+  the template in [docs/format.md](docs/format.md#markdown-report-template).
+
+> **Format policy:** HTML bundles are stored as-is; they must **not** be
+> converted to Markdown during migration. An IEEE 829 Markdown summary _may_
+> optionally be derived from an HTML bundle (placed in `derived/report.md`),
+> but derivation must not replace or discard the original HTML.
 
 ### Documentation (`docs/`)
 

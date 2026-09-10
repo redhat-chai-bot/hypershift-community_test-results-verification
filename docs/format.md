@@ -25,12 +25,54 @@ Rules:
 
 ### Reports
 
+Reports support two formats. Choose based on the report content:
+
+#### HTML-bundle reports (preferred)
+
+```
+reports/<jira-key>/
+├── index.html              # Dashboard / entry-point
+├── scenario-1.html         # Per-scenario detail pages
+├── scenario-2.html
+├── ...
+├── appendices.html          # Environment details, config evidence
+├── automated-tests.html     # CI / automated-test results
+├── assets/                  # Screenshots, diagrams
+│   └── img-scenario-1.png
+├── scripts/                 # Helper scripts used in testing
+│   └── setup-env.sh
+└── derived/                 # Optional IEEE 829 Markdown summary
+    └── report.md
+```
+
+Example: `reports/ocpbugs-100054/index.html` is the entry-point for the
+OCPBUGS-100054 verification report.
+
+HTML bundles are self-contained directories mirroring the existing
+`test-verification-report-*` pattern from the source repository. Each
+bundle typically includes:
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Dashboard with navigation, summary statistics, and links to scenario pages |
+| `scenario-N.html` | Detailed steps, evidence, and pass/fail status for each test scenario |
+| `appendices.html` | Environment details, configuration dumps, supplementary evidence |
+| `automated-tests.html` | CI pipeline results, automated-test logs, coverage data |
+| `assets/` | Screenshots, topology diagrams, and other images referenced by HTML pages |
+| `scripts/` | Helper shell scripts, OIDC token scripts, setup utilities used during testing |
+| `derived/report.md` | Optional IEEE 829 Markdown generated from the HTML (see [Derived Markdown](#derived-markdown-from-html-reports)) |
+
+#### Markdown reports
+
 ```
 reports/<jira-key>/<pr-number>.md
 ```
 
 Example: `reports/ocpstrat-3298/8698.md` verifies PR #8698 against the
 test plan for OCPSTRAT-3298.
+
+Use Markdown reports for lightweight, single-PR verification results that
+do not require the full HTML bundle structure.
 
 ## Metadata Block
 
@@ -290,17 +332,120 @@ Describe the feature under test and the purpose of this plan.
 | Reviewer | | |
 ````
 
-## Report Format
+## Report Formats
 
-Verification reports are lighter-weight than plans. A report captures the
-results of executing a plan against a specific PR.
+Verification reports support two formats depending on the complexity and
+origin of the report content.
 
-### Report Template
+### HTML-Bundle Reports (Preferred)
+
+HTML bundles are the **default and preferred** format for verification
+reports. They preserve the rich, navigable structure of generated test
+reports — including dashboards, per-scenario evidence pages, embedded
+screenshots, and CI result summaries.
+
+#### HTML-bundle metadata
+
+HTML-bundle reports use a `metadata.yaml` file (not YAML front-matter)
+placed at the root of the report directory:
+
+```yaml
+# reports/ocpbugs-100054/metadata.yaml
+plan: ""                             # Filename stem of the test plan (if any)
+jira_key: OCPBUGS-100054
+format: html-bundle                  # "html-bundle" or "markdown"
+date: 2026-08-05
+verdict: pass                        # "pass", "fail", or "conditional"
+scenario_count: 8                    # Total test scenarios
+pass_count: 8                        # Scenarios that passed
+ci_verified: true                    # automated-tests.html present?
+has_derived_markdown: false          # derived/report.md present?
+tags:
+  - authentication
+  - hypershift
+```
+
+#### Sanitized HTML-bundle layout example
+
+Below is a representative directory layout for an HTML-bundle report.
+All names, data, and identifiers are fictional.
+
+```
+reports/ocpbugs-99999/
+├── metadata.yaml             # Required report metadata
+├── index.html                # Dashboard: 6 scenarios, 6/6 pass
+├── scenario-1.html           # Cluster provisioning validation
+├── scenario-2.html           # Network-policy enforcement
+├── scenario-3.html           # Ingress-controller health
+├── scenario-4.html           # Node scaling operations
+├── scenario-5.html           # Upgrade rollout verification
+├── scenario-6.html           # Teardown and cleanup
+├── appendices.html           # Environment config, cluster version
+├── automated-tests.html      # CI job results, e2e pass rates
+├── assets/
+│   ├── img-s1-cluster.png    # Screenshot: cluster overview
+│   └── img-s3-ingress.png    # Screenshot: ingress status
+└── scripts/
+    └── setup-env.sh           # Cluster environment bootstrap
+```
+
+#### `index.html` conventions
+
+The index page serves as the report dashboard. It typically includes:
+
+- **Navigation bar** linking to all scenario pages, appendices, and
+  automated-test results.
+- **Summary statistics** (total scenarios, pass/fail counts, coverage).
+- **Test-environment overview** (cluster version, platform, topology).
+- **Jira-key reference** in the page title or header.
+
+HTML reports may reference external CDN resources (e.g. Bootstrap CSS/JS)
+for styling but must not depend on resources outside the bundle for
+_content_ (evidence, logs, screenshots).
+
+#### Scenario pages
+
+Each `scenario-N.html` page documents a single test scenario:
+
+- **Objective** — what is being verified.
+- **Pre-conditions** — cluster state, configuration, prerequisites.
+- **Steps** — numbered test steps with expected vs. actual results.
+- **Evidence** — embedded or linked screenshots, log snippets.
+- **Verdict** — PASS / FAIL / SKIP with notes.
+
+#### Assets and scripts
+
+- Store images in `assets/` and reference them with relative paths.
+- Store helper scripts in `scripts/`. Scripts must be sanitized
+  (no embedded credentials, tokens, or customer identifiers).
+- Large binary assets (> 5 MB per file) should be avoided; link to
+  external storage if necessary.
+
+### Derived Markdown from HTML Reports
+
+When an IEEE 829 Markdown version of an HTML report is needed (e.g. for
+downstream tooling or cross-referencing with plans), place it in
+`derived/report.md` inside the report directory.
+
+Rules:
+
+1. The HTML bundle remains the **authoritative** artifact.
+2. `derived/report.md` is a convenience copy — it may be AI-generated
+   or hand-written.
+3. Set `has_derived_markdown: true` in `metadata.yaml` when present.
+4. Derivation **must not** replace or remove the original HTML files.
+
+### Markdown Report Template
+
+Markdown reports are lightweight, single-file reports for simpler
+verification results. Use this format when the report does not require
+a full HTML bundle.
 
 ````markdown
 ---
 plan: ocpstrat-3298              # Filename stem of the test plan
 jira_key: OCPSTRAT-3298
+format: markdown                 # "html-bundle" or "markdown"
 pr:
   repo: openshift/hypershift
   number: 8698
@@ -379,8 +524,19 @@ should:
 
 ### Creating a Report
 
-Automation should follow the report format defined above and place the
-file at `reports/<jira-key>/<pr-number>.md`.
+For **HTML-bundle reports**, automation should:
+
+1. Create the directory `reports/<jira-key>/`.
+2. Copy the HTML bundle files (`index.html`, `scenario-*.html`,
+   `appendices.html`, `automated-tests.html`, assets, scripts) into
+   the directory.
+3. Generate a `metadata.yaml` file with required fields (see
+   [HTML-bundle metadata](#html-bundle-metadata)).
+4. Set `format: html-bundle` in the metadata.
+
+For **Markdown reports**, automation should follow the Markdown report
+template defined above and place the file at
+`reports/<jira-key>/<pr-number>.md`.
 
 ### File Validation
 

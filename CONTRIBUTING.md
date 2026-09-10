@@ -38,13 +38,64 @@ sections and template.
 
 ## Adding a Verification Report
 
-### 1. Create the report directory (if needed)
+Reports support two formats. Choose based on your content:
+
+### Option A: HTML-Bundle Report (Preferred)
+
+Use this when your report was generated as a multi-page HTML bundle
+(the standard `test-verification-report-*` pattern).
+
+#### 1. Create the report directory
 
 ```
 reports/<jira-key>/
 ```
 
-### 2. Write the report
+#### 2. Copy the HTML bundle
+
+Copy the generated bundle files into the directory:
+
+```bash
+cp -r /path/to/generated-report/* reports/<jira-key>/
+```
+
+The directory should contain:
+
+- `index.html` — dashboard / entry-point
+- `scenario-N.html` — per-scenario detail pages
+- `appendices.html` — environment details, config evidence (optional)
+- `automated-tests.html` — CI results (optional)
+- `assets/` — screenshots, diagrams (optional)
+- `scripts/` — helper scripts (optional)
+
+#### 3. Add metadata
+
+Create `reports/<jira-key>/metadata.yaml` using the schema in
+[docs/format.md](docs/format.md#html-bundle-metadata). Set
+`format: html-bundle`.
+
+#### 4. Optionally derive a Markdown summary
+
+If a Markdown version is needed, place it in `derived/report.md` and
+set `has_derived_markdown: true` in `metadata.yaml`. The HTML bundle
+remains the authoritative artifact — never delete HTML files after
+generating a Markdown summary.
+
+#### 5. Open a pull request
+
+Use title format: `<JIRA-KEY>: Add verification report`.
+
+### Option B: Markdown Report
+
+Use this for lightweight, single-PR verification results.
+
+#### 1. Create the report directory (if needed)
+
+```
+reports/<jira-key>/
+```
+
+#### 2. Write the report
 
 Name the file by the PR number it verifies:
 
@@ -60,7 +111,7 @@ Include:
 - **Evidence** — links to CI runs, logs, screenshots
 - **Verdict** — overall pass/fail and any caveats
 
-### 3. Open a pull request
+#### 3. Open a pull request
 
 Use title format: `<JIRA-KEY>: Add verification report for PR #<number>`.
 
@@ -80,6 +131,13 @@ Do not include secrets, customer data, or private links. Sanitize all
 examples by replacing real identifiers with placeholders. See the
 [automation integration contract](docs/format.md#automation-integration-contract)
 for the full list of content prohibitions.
+
+**HTML-specific rules:** When committing HTML reports, also sanitize:
+
+- Bearer tokens and authorization headers embedded in log output
+- Azure subscription/tenant IDs in URLs or config dumps
+- Real cluster names and account identifiers in dashboard data
+- Customer names or personal information in report titles or headers
 
 ## Style Guidelines
 
