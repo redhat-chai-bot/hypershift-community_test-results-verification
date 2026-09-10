@@ -13,6 +13,7 @@ individual personal GitHub repositories.
 │   └── <slug>.md           # Plan without a Jira issue (e.g. csi-snapshot-validation.md)
 ├── reports/                # Verification reports (HTML bundle or Markdown)
 │   └── <jira-key>/         # Reports grouped by Jira issue
+│       ├── metadata.yaml   # Required report metadata
 │       ├── index.html      # HTML bundle entry-point (preferred format)
 │       ├── scenario-N.html # Per-scenario detail pages
 │       ├── appendices.html # Supplementary evidence

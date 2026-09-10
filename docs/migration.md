@@ -94,7 +94,7 @@ the table above via PR. Include:
 - **Source** — link to the current location
 - **Jira Key** — the associated Jira issue, if any
 - **Description** — brief description of what the plan covers
-- **Target File** — the expected filename in this repo
+- **Target Path** — the expected path in this repo
 - **Status** — one of: `Not started`, `In progress`, `Migrated`, `Skipped`
 
 ## What NOT to Do
