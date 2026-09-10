@@ -139,6 +139,13 @@ author: ""                       # Plan author (name or GitHub handle)
 
 ### Status Lifecycle
 
+> **Note:** The `status` field and its lifecycle values are **repository
+> metadata conventions** used for workflow and discoverability — they are
+> _not_ part of the IEEE 829-2008 standard. Everything in the
+> [Metadata Block](#metadata-block) (the YAML front-matter) is repository
+> housekeeping; the IEEE 829 content begins in the
+> [Plan Body Structure](#plan-body-structure) section below.
+
 ```
 draft → active → superseded
                 → archived
@@ -152,6 +159,15 @@ draft → active → superseded
 ## One-to-Many Relationships
 
 ### One Plan, Many Jira Issues (Backports)
+
+> **Why this matters:** In practice, a feature lands on the main branch and
+> is then cherry-picked to one or more release branches. Each backport
+> carries its own Jira issue and PR, yet the verification logic is
+> identical. Maintaining a single authoritative test plan — instead of
+> copying it per-backport — prevents duplicated plans from drifting out of
+> sync and gives reviewers one place to check. The metadata lists below let
+> automation and reviewers trace every related Jira issue and PR back to
+> that single plan.
 
 A feature implemented in a main-branch PR often gets backported to one or
 more release branches. Each backport has its own Jira issue and PR, but the

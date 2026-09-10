@@ -10,6 +10,30 @@ reports in personal GitHub repositories. This centralized repository replaces
 that pattern. All existing plans should be migrated here following the
 conventions in [format.md](format.md) and [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+### Purpose and Longevity
+
+This guide — and the [Migration Inventory](#migration-inventory) table below
+— is a **durable, incrementally maintained record**, not a one-time
+throwaway. It serves as the onboarding reference for anyone moving artifacts
+into this repository, whether manually or with LLM-assisted tooling.
+
+**Handling incomplete legacy artifacts:**
+
+- **Preserve source content.** Migrate what exists without inventing
+  missing facts. If the original plan lacks sections required by the
+  current format, do _not_ fabricate content to fill them.
+- **Set `status: draft` and document gaps.** Mark incomplete plans as
+  `draft` in their front-matter and add a brief note (e.g.
+  "Missing: test-environment details — to be supplied by author") so
+  follow-up work is visible.
+- **New and materially updated plans must use the current format.**
+  The IEEE 829 structure defined in [format.md](format.md) is required
+  for any plan written from scratch or substantially rewritten. Minor
+  metadata-only updates to a migrated plan do not trigger a full rewrite.
+- **HTML bundles are preserved as-is.** Do not convert HTML report bundles
+  to Markdown during migration (see [What NOT to Do](#what-not-to-do)).
+  They are relocated intact and given a `metadata.yaml` sidecar.
+
 ## Migration Steps
 
 ### 1. Inventory Your Plans
