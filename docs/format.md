@@ -19,6 +19,8 @@ Rules:
   `cntrlplane-1234`, `ocpbugs-5678`).
 - Slugs for plans without a Jira issue use lowercase words separated by
   hyphens. Keep them short and descriptive.
+- Files prefixed with `_` (e.g. `_example.md`) are reserved for templates
+  and reference examples. They are not production plans.
 - One plan per file. Do not combine unrelated features.
 
 ### Reports
@@ -78,11 +80,11 @@ author: ""                       # Plan author (name or GitHub handle)
 | `version` | string | yes | Plan revision. Increment on substantive changes. |
 | `date` | date | yes | Last-updated date in ISO 8601 format. |
 | `title` | string | yes | Human-readable plan title. |
-| `jira_issues` | list | yes* | List of associated Jira issues. *May be empty for plans without a Jira issue. |
+| `jira_issues` | list | yes | List of associated Jira issues. Required; use an empty list `[]` when there is no Jira issue. |
 | `jira_issues[].key` | string | yes | Jira issue key (e.g. `OCPSTRAT-3298`). |
 | `jira_issues[].role` | string | yes | `primary` or `backport`. Exactly one issue should be `primary`. |
 | `jira_issues[].url` | string | yes | Full URL to the Jira issue. |
-| `pull_requests` | list | yes* | List of associated PRs. *May be empty if PRs are not yet opened. |
+| `pull_requests` | list | yes | List of associated PRs. Required; use an empty list `[]` when PRs are not yet opened. |
 | `pull_requests[].repo` | string | yes | GitHub repository in `org/repo` format. |
 | `pull_requests[].number` | integer | yes | PR number. |
 | `pull_requests[].url` | string | yes | Full URL to the PR. |

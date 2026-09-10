@@ -61,7 +61,7 @@ Add entries as you discover plans in personal repos or other locations.
 
 | Source | Jira Key | Description | Target File | Status |
 |--------|----------|-------------|-------------|--------|
-| [bryan-cox.github.io/architectural-artifact-sharing](https://bryan-cox.github.io/architectural-artifact-sharing/) | Various | Hosted verification reports | `plans/` + `reports/` | Not started |
+| [bryan-cox.github.io/architectural-artifact-sharing](https://bryan-cox.github.io/architectural-artifact-sharing/) | Various | Hosted verification reports | TBD (multiple files) | Not started |
 | PR #1 in this repo | OCPSTRAT-3298 | NodePool rollout control test plan | `plans/ocpstrat-3298.md` | In progress (PR open) |
 | PR #2 in this repo | OCPSTRAT-3150 | Etcd sharding test plan | `plans/ocpstrat-3150.md` | In progress (PR open) |
 

@@ -24,13 +24,9 @@ individual personal GitHub repositories.
 ### Plans (`plans/`)
 
 Each test plan is a single Markdown file following the IEEE 829-2008 standard.
-Plans are named by their **primary Jira issue key** in lowercase
-(e.g. `ocpstrat-3298.md`). A single plan can reference multiple Jira issues
-and PRs to support backport workflows — see [docs/format.md](docs/format.md)
-for the metadata model.
-
-Plans that do not have a Jira issue use a short descriptive slug instead
-(e.g. `csi-snapshot-validation.md`).
+A single plan can reference multiple Jira issues and PRs to support backport
+workflows. See [docs/format.md](docs/format.md#naming-conventions) for naming
+conventions and the metadata model.
 
 ### Reports (`reports/`)
 

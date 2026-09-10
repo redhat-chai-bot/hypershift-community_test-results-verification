@@ -14,10 +14,9 @@ repository.
 
 ### 1. Choose a filename
 
-| Situation | Filename |
-|-----------|----------|
-| Plan linked to a Jira issue | `plans/<jira-key>.md` (lowercase, e.g. `plans/ocpstrat-3298.md`) |
-| Plan without a Jira issue | `plans/<descriptive-slug>.md` (lowercase, hyphenated, e.g. `plans/csi-snapshot-validation.md`) |
+Use the naming conventions in [docs/format.md](docs/format.md#naming-conventions):
+lowercase Jira key (e.g. `plans/ocpstrat-3298.md`) or descriptive slug
+(e.g. `plans/csi-snapshot-validation.md`).
 
 ### 2. Write the plan
 
@@ -26,12 +25,9 @@ existing plan from `plans/`. Every plan **must** include the YAML front-matter
 metadata block — see [docs/format.md](docs/format.md#metadata-block) for
 required and optional fields.
 
-The body follows the IEEE 829-2008 structure. At minimum, include:
-
-1. **Test Plan Identifier** — unique ID, version, date
-2. **Introduction and Objectives** — purpose, acceptance criteria mapping
-3. **Test Items and References** — PRs, code paths, Jira links
-4. **Test Cases** — numbered test cases with steps and expected results
+The body follows the IEEE 829-2008 structure. See
+[docs/format.md](docs/format.md#plan-body-structure) for the recommended
+sections and template.
 
 ### 3. Open a pull request
 
@@ -80,15 +76,10 @@ additional Jira issue keys and PR links to the existing plan's metadata.
 
 ## Content Rules
 
-- **No secrets** — do not include credentials, tokens, API keys, kubeconfigs,
-  or other sensitive material.
-- **No customer data** — do not include customer names, cluster IDs, or
-  support case references.
-- **No private links** — all URLs must be publicly accessible or accessible
-  to the intended audience (e.g. Red Hat Jira). Do not include links to
-  private Slack channels, internal-only dashboards, or personal repositories.
-- **Sanitize examples** — replace real cluster names, namespaces, and
-  identifiers with placeholder values in any included command output.
+Do not include secrets, customer data, or private links. Sanitize all
+examples by replacing real identifiers with placeholders. See the
+[automation integration contract](docs/format.md#automation-integration-contract)
+for the full list of content prohibitions.
 
 ## Style Guidelines
 
