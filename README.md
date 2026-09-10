@@ -26,6 +26,8 @@ individual personal GitHub repositories.
 ├── docs/                   # Repository documentation
 │   ├── format.md           # Metadata model, format specification, relationships
 │   └── migration.md        # Migration guide and inventory
+├── .github/workflows/      # CI validation (codespell, metadata, structure)
+├── AGENTS.md               # Non-negotiable rules for AI agents
 ├── CONTRIBUTING.md         # How to add plans and reports
 └── README.md               # This file
 ```

@@ -1,0 +1,238 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    name: Codespell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: codespell-project/actions-codespell@v2
+        with:
+          skip: "*.html,./assets/*,./.git/*"
+          ignore_words_list: "ist,hte"
+
+  validate:
+    name: Repository validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plan front-matter and structure
+        shell: python3 {0}
+        run: |
+          """Validate YAML front-matter and IEEE 829 sections in plans/*.md."""
+          import pathlib, re, sys, yaml
+
+          REQUIRED_FIELDS = {"id", "version", "date", "title", "jira_issues",
+                             "pull_requests", "status"}
+          VALID_STATUSES = {"draft", "active", "superseded", "archived"}
+          # IEEE 829 sections expected in plans (by heading number prefix)
+          IEEE_SECTIONS = [
+              r"(?:1\.?\s+)?Test Plan Identifier",
+              r"(?:2\.?\s+)?Introduction and Objectives",
+              r"(?:3\.?\s+)?Test Items and References",
+              r"(?:5\.?\s+)?Test Cases",
+          ]
+
+          errors = []
+          plans = sorted(pathlib.Path("plans").glob("*.md"))
+          if not plans:
+              print("No plan files found in plans/ — skipping.")
+              sys.exit(0)
+
+          for path in plans:
+              text = path.read_text(encoding="utf-8")
+              prefix = f"{path}:"
+
+              # --- front-matter ---
+              fm_match = re.match(r"^---\n(.+?\n)---\n", text, re.DOTALL)
+              if not fm_match:
+                  errors.append(f"{prefix} missing YAML front-matter (must start with ---)")
+                  continue
+
+              try:
+                  meta = yaml.safe_load(fm_match.group(1))
+              except yaml.YAMLError as exc:
+                  errors.append(f"{prefix} YAML parse error: {exc}")
+                  continue
+
+              if not isinstance(meta, dict):
+                  errors.append(f"{prefix} front-matter is not a YAML mapping")
+                  continue
+
+              missing = REQUIRED_FIELDS - set(meta.keys())
+              if missing:
+                  errors.append(f"{prefix} missing required fields: {', '.join(sorted(missing))}")
+
+              status = meta.get("status")
+              if status and status not in VALID_STATUSES:
+                  errors.append(f"{prefix} invalid status '{status}' "
+                                f"(expected one of: {', '.join(sorted(VALID_STATUSES))})")
+
+              # --- naming convention ---
+              stem = path.stem
+              if stem != stem.lower():
+                  errors.append(f"{prefix} filename must be lowercase (got '{stem}')")
+
+              # --- IEEE 829 sections (advisory for real plans, checked for all) ---
+              body = text[fm_match.end():]
+              for pattern in IEEE_SECTIONS:
+                  if not re.search(pattern, body, re.IGNORECASE):
+                      errors.append(f"{prefix} missing IEEE 829 section matching '{pattern}'")
+
+          if errors:
+              print("Plan validation errors:")
+              for e in errors:
+                  print(f"  ERROR: {e}")
+              sys.exit(1)
+          else:
+              print(f"All {len(plans)} plan(s) passed validation.")
+
+      - name: Validate report metadata and bundle consistency
+        shell: python3 {0}
+        run: |
+          """Validate metadata.yaml files in reports/ and check bundle layout."""
+          import pathlib, sys, yaml
+
+          REQUIRED_META = {"jira_key", "format", "date", "verdict"}
+
+          errors = []
+          meta_files = sorted(pathlib.Path("reports").rglob("metadata.yaml"))
+          if not meta_files:
+              print("No report metadata.yaml files found — skipping.")
+              sys.exit(0)
+
+          for mf in meta_files:
+              prefix = f"{mf}:"
+              report_dir = mf.parent
+
+              try:
+                  meta = yaml.safe_load(mf.read_text(encoding="utf-8"))
+              except yaml.YAMLError as exc:
+                  errors.append(f"{prefix} YAML parse error: {exc}")
+                  continue
+
+              if not isinstance(meta, dict):
+                  errors.append(f"{prefix} metadata is not a YAML mapping")
+                  continue
+
+              missing = REQUIRED_META - set(meta.keys())
+              if missing:
+                  errors.append(f"{prefix} missing required fields: {', '.join(sorted(missing))}")
+
+              fmt = meta.get("format", "")
+              if fmt == "html-bundle":
+                  index = report_dir / "index.html"
+                  if not index.exists():
+                      errors.append(f"{prefix} format is html-bundle but {index} does not exist")
+
+                  if meta.get("has_derived_markdown"):
+                      derived = report_dir / "derived" / "report.md"
+                      if not derived.exists():
+                          errors.append(f"{prefix} has_derived_markdown is true but "
+                                        f"{derived} does not exist")
+              elif fmt and fmt != "markdown":
+                  errors.append(f"{prefix} unknown format '{fmt}' (expected html-bundle or markdown)")
+
+              # Directory name should look like a Jira key
+              dir_name = report_dir.name
+              jira_key = meta.get("jira_key", "")
+              if jira_key and dir_name.lower() != jira_key.lower():
+                  errors.append(f"{prefix} directory '{dir_name}' does not match "
+                                f"jira_key '{jira_key}'")
+
+          if errors:
+              print("Report validation errors:")
+              for e in errors:
+                  print(f"  ERROR: {e}")
+              sys.exit(1)
+          else:
+              print(f"All {len(meta_files)} report metadata file(s) passed validation.")
+
+      - name: Check naming conventions and internal links
+        shell: bash
+        run: |
+          set -euo pipefail
+          errors=0
+
+          # Plan filenames must be lowercase .md
+          for f in plans/*.md; do
+            [ -f "$f" ] || continue
+            base=$(basename "$f")
+            lc=$(echo "$base" | tr '[:upper:]' '[:lower:]')
+            if [ "$base" != "$lc" ]; then
+              echo "ERROR: $f — filename must be lowercase"
+              errors=$((errors + 1))
+            fi
+          done
+
+          # Report directories should be lowercase
+          for d in reports/*/; do
+            [ -d "$d" ] || continue
+            base=$(basename "$d")
+            lc=$(echo "$base" | tr '[:upper:]' '[:lower:]')
+            if [ "$base" != "$lc" ]; then
+              echo "ERROR: $d — directory name must be lowercase"
+              errors=$((errors + 1))
+            fi
+          done
+
+          # Check that internal doc links in Markdown files point to existing files
+          for f in README.md CONTRIBUTING.md docs/*.md AGENTS.md; do
+            [ -f "$f" ] || continue
+            dir=$(dirname "$f")
+            # Extract relative links (not http/https, not anchors-only)
+            grep -oP '\[.*?\]\(\K[^)#]+' "$f" 2>/dev/null | \
+              grep -v '^https\?://' | \
+              while IFS= read -r link; do
+                # Strip any trailing anchor
+                target="${link%%#*}"
+                [ -z "$target" ] && continue
+                # Resolve relative to file's directory
+                resolved="$dir/$target"
+                if [ ! -e "$resolved" ]; then
+                  echo "ERROR: $f — broken link to '$target' (resolved: $resolved)"
+                  errors=$((errors + 1))
+                fi
+              done
+          done
+
+          if [ "$errors" -gt 0 ]; then
+            echo "Found $errors naming/link error(s)."
+            exit 1
+          fi
+          echo "Naming conventions and internal links OK."
+
+      - name: Scan for credential patterns
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Scan tracked files (excluding .git and binary files) for
+          # credential-shaped patterns. Lines inside documentation that
+          # *describe* sanitization rules are expected to match — we
+          # filter those out with a negative grep.
+          PATTERN='(AKIA[0-9A-Z]{16}|-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|[0-9a-f]{40,64}:[0-9a-f]{40,64})'
+
+          echo "Scanning tracked files for credential patterns..."
+          hits=$(git grep -lPn "$PATTERN" -- ':(exclude).github/' 2>/dev/null || true)
+
+          if [ -n "$hits" ]; then
+            echo "ERROR: Possible credentials detected in:"
+            echo "$hits"
+            echo ""
+            echo "If these are documentation examples, ensure they use"
+            echo "clearly fictional values. Otherwise, remove the secrets."
+            exit 1
+          fi
+
+          echo "No credential patterns found."
